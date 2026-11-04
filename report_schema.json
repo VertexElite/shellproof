@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "shellproof report",
+  "description": "Behavioral patch-diff scan output — PHP2Shell + Node2Shell. VertexElite Security Research.",
+  "type": "object",
+  "required": ["scan_id", "target", "timestamp", "tool_version", "results"],
+  "properties": {
+    "scan_id":      { "type": "string", "description": "UUIDv4 for this scan run" },
+    "target":       { "type": "string", "description": "Scanned URL" },
+    "timestamp":    { "type": "string", "format": "date-time" },
+    "tool_version": { "type": "string" },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["cve", "verdict", "probe_type", "duration_ms", "description", "recommended_fix"],
+        "properties": {
+          "cve":             { "type": "string", "pattern": "^CVE-\\d{4}-\\d+$" },
+          "verdict":         { "type": "string", "enum": ["patched", "vulnerable", "inconclusive", "error"] },
+          "probe_type":      { "type": "string", "enum": ["active", "passive"] },
+          "duration_ms":     { "type": "integer" },
+          "signal_kind":     { "type": "string", "description": "Raw signal from Rust layer (present if vulnerable/inconclusive)" },
+          "evidence":        { "type": "string", "description": "Evidence string — sanitised for disclosure" },
+          "reason":          { "type": "string", "description": "Inconclusivity reason" },
+          "description":     { "type": "string" },
+          "recommended_fix": { "type": "string" }
+        }
+      }
+    }
+  },
+  "example": {
+    "scan_id": "a1b2c3d4-...",
+    "target": "https://example.com/",
+    "timestamp": "2026-11-03T10:00:00Z",
+    "tool_version": "0.1.0",
+    "results": [
+      {
+        "cve": "CVE-2026-111497",
+        "verdict": "vulnerable",
+        "probe_type": "active",
+        "duration_ms": 42,
+        "signal_kind": "connection_reset",
+        "evidence": "TCP connection reset after malformed Brotli block-switch payload",
+        "description": "Brotli decoder OOB write (Node2Shell / HTTP2Shell) — DecodeBlockTypeAndLength() invalid block switch. Fixed: Brotli 1.2.1 commit 0ed4268a; Node.js 22.23.4/24.22.1/26.12.1.",
+        "recommended_fix": "Update Node.js to 22.23.4 / 24.22.1 / 26.12.1 or Brotli library to 1.2.1."
+      }
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+# Rust
+/target
+**/*.rs.bk
+
+# OCaml / dune
+/ocaml/_build
+
+# shellproof runtime artifacts
+/build.log
+/ocaml-build.log
+/*.json
+!report_schema.json
+sp_*.json
+/tmp/
